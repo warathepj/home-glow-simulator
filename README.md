@@ -1,73 +1,168 @@
-# Welcome to your Lovable project
+# ซอร์สโค้ดนี้ ใช้สำหรับเป็นตัวอย่างเท่านั้น ถ้านำไปใช้งานจริง ผู้ใช้ต้องจัดการเรื่องความปลอดภัย และ ประสิทธิภาพด้วยตัวเอง
 
-## Project info
+# LumiLink System
 
-**URL**: https://lovable.dev/projects/e562ebcc-4eaa-4d48-824a-fbf9345ef17f
+A comprehensive real-time light control system consisting of a mobile app, backend server, and web-based simulator.
 
-## How can I edit this code?
+## 🏗️ Project Structure
 
-There are several ways of editing your application.
+```
+/
+├── app/            # Mobile application (Expo/React Native)
+├── backend/        # MQTT broker and WebSocket server
+└── simulator/      # Web-based light simulator
+```
 
-**Use Lovable**
+## 🚀 Getting Started
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/e562ebcc-4eaa-4d48-824a-fbf9345ef17f) and start prompting.
+### Prerequisites
 
-Changes made via Lovable will be committed automatically to this repo.
+- Node.js (LTS version)
+- npm or yarn
+- Expo Go app (for mobile development)
+- iOS Simulator (for iOS development on macOS)
+- Android Studio & Android Emulator (for Android development)
 
-**Use your preferred IDE**
+### Repository
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+```bash
+# Mobile Application
+https://github.com/warathepj/lumilink-app.git
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+# Backend Server
+https://github.com/warathepj/lumilink-backend.git
 
-Follow these steps:
+# Web-based Hardware Simulator
+https://github.com/warathepj/home-glow-simulator.git
+```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Installation and Setup
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+#### 1. Mobile App (app/)
 
-# Step 3: Install the necessary dependencies.
-npm i
+```bash
+cd lumilink-app
+npm install
+npx expo start
+```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+Development options:
+
+- Use Expo Go app for physical device testing
+- Press 'i' for iOS Simulator
+- Press 'a' for Android Emulator
+- Press 'w' for web browser
+
+#### 2. Backend Server (backend/)
+
+```bash
+cd lumilink-backend
+npm install
+# Start the publisher
+npm start
+# Start the subscriber (in a new terminal)
+node subscriber.js
+```
+
+#### 3. Simulator (simulator/)
+
+```bash
+cd home-glow-simulator
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The simulator will be available at `http://localhost:8080`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 🛠️ Tech Stack
 
-**Use GitHub Codespaces**
+### Mobile App
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- [Expo](https://expo.dev/) - Development platform
+- [React Native](https://reactnative.dev/) - Mobile framework
+- [TypeScript](https://www.typescriptlang.org/) - Programming language
 
-## What technologies are used for this project?
+### Backend
 
-This project is built with:
+- [Node.js](https://nodejs.org/) - Runtime environment
+- [MQTT.js](https://github.com/mqttjs/MQTT.js) - MQTT client
+- [ws](https://github.com/websockets/ws) - WebSocket server
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Simulator
 
-## How can I deploy this project?
+- [Vite](https://vitejs.dev/) - Build tool
+- [React](https://reactjs.org/) - UI framework
+- [TypeScript](https://www.typescriptlang.org/) - Programming language
+- [Tailwind CSS](https://tailwindcss.com/) - Styling
+- [shadcn/ui](https://ui.shadcn.com/) - UI components
 
-Simply open [Lovable](https://lovable.dev/projects/e562ebcc-4eaa-4d48-824a-fbf9345ef17f) and click on Share -> Publish.
+## 🎮 Features
 
-## Can I connect a custom domain to my Lovable project?
+### Mobile App
 
-Yes, you can!
+- Real-time light control interface
+- Room-based lighting management
+- MQTT integration for IoT communication
+- Status indicators
+- Activity logging
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Backend
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- MQTT broker connection (https://mosquitto.org/download)
+- WebSocket server for real-time communication
+- Message handling between app and simulator
+
+### Simulator
+
+- Interactive room lighting controls
+- Real-time status updates
+- WebSocket communication
+- Connection status monitoring
+- Mobile-responsive design
+
+## 📡 Communication Flow
+
+```
+Mobile App <-> Backend (MQTT/WebSocket) <-> Simulator
+```
+
+### Connection Details
+
+- MQTT Topic: `lumilink/toggle` _create your own topic_
+- WebSocket Ports:
+  - Publisher: 8081
+  - Subscriber: 8085
+
+## 🔧 Configuration
+
+### Mobile App
+
+- Expo configuration in `app.json`
+
+### Backend
+
+- MQTT broker settings in environment variables
+
+### Simulator
+
+- Room configurations in context
+- UI theme customization via Tailwind
+
+## ⚠️ Security Notice
+
+Current configuration is for development purposes only. For production:
+
+- Use secure MQTT broker
+- Implement proper authentication
+- Enable SSL/TLS
+- Configure proper access controls
+- Handle error cases
+- Implement logging
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details
+
+## ⚠️ Disclaimer
+
+This source code is for demonstration purposes only. Users must implement their own security and performance measures for production use.

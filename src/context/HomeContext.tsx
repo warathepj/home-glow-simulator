@@ -24,8 +24,12 @@ export const HomeProvider: React.FC<{ children: React.ReactNode }> = ({ children
     kitchen: { isOn: false, lastChanged: new Date() }
   });
   
-  const [isConnected, setIsConnected] = useState<boolean>(true);
+  const [isConnected, setIsConnected] = useState<boolean>(false);
   const [logs, setLogs] = useState<Array<{ time: Date; message: string }>>([]);
+
+  const addLog = (message: string) => {
+    setLogs(prev => [...prev, { time: new Date(), message }]);
+  };
 
   const toggleLight = (room: Room) => {
     const newStatus = !lights[room].isOn;
@@ -39,32 +43,71 @@ export const HomeProvider: React.FC<{ children: React.ReactNode }> = ({ children
     addLog(`${room} light turned ${newStatus ? 'ON' : 'OFF'}`);
   };
 
-  const addLog = (message: string) => {
-    setLogs(prev => [{ time: new Date(), message }, ...prev].slice(0, 50));
-  };
-
-  // Simulate random light changes to mimic IoT behavior
+  // WebSocket connection and message handling
   useEffect(() => {
-    const rooms: Room[] = ["livingRoom", "bedroom", "kitchen"];
-    
-    const interval = setInterval(() => {
-      // Randomly decide whether to change a light
-      if (Math.random() > 0.7) {
-        const randomRoomIndex = Math.floor(Math.random() * rooms.length);
-        const room = rooms[randomRoomIndex];
-        toggleLight(room);
+    const ws = new WebSocket('ws://localhost:8085');
+
+    ws.onopen = () => {
+      setIsConnected(true);
+      addLog('Connected to WebSocket server');
+    };
+
+    ws.onclose = () => {
+      setIsConnected(false);
+      addLog('Disconnected from WebSocket server');
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        
+        console.log('\n=== WebSocket Message Received ===');
+        console.log('Time:', new Date().toISOString());
+        console.log('Type:', data.type);
+        console.log('Room:', data.room);
+        console.log('Value:', data.value);
+        console.log('Source:', data.source);
+        console.log('Timestamp:', data.timestamp);
+        console.log('Raw message:', JSON.stringify(data, null, 2));
+        console.log('================================\n');
+        
+        if (data.type === 'TOGGLE_UPDATE') {
+          // Convert room name to match our Room type format
+          const roomMapping: Record<string, Room> = {
+            'Living Room': 'livingRoom',
+            'Bedroom': 'bedroom',
+            'Kitchen': 'kitchen'
+          };
+          
+          const room = roomMapping[data.room];
+          if (room) {
+            setLights(prev => ({
+              ...prev,
+              [room]: {
+                isOn: data.value,
+                lastChanged: new Date(data.timestamp)
+              }
+            }));
+            
+            // Add a log entry for the state change
+            addLog(`${data.room} light ${data.value ? 'turned ON' : 'turned OFF'} from ${data.source}`);
+          } else {
+            console.warn(`Unknown room received: ${data.room}`);
+          }
+        }
+      } catch (error) {
+        console.error('\n=== WebSocket Error ===');
+        console.error('Time:', new Date().toISOString());
+        console.error('Error:', error);
+        console.error('Raw message:', event.data);
+        console.error('=====================\n');
       }
-      
-      // Randomly simulate connection changes
-      if (Math.random() > 0.95) {
-        const newConnectedStatus = !isConnected;
-        setIsConnected(newConnectedStatus);
-        addLog(`Device ${newConnectedStatus ? 'CONNECTED' : 'DISCONNECTED'}`);
-      }
-    }, 5000);
-    
-    return () => clearInterval(interval);
-  }, [isConnected]);
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, []);
 
   return (
     <HomeContext.Provider value={{ lights, isConnected, toggleLight, logs }}>
